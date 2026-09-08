@@ -24,6 +24,32 @@ describe('SignupPage', () => {
     expect(signup).not.toHaveBeenCalled();
   });
 
+  // Not testable here: jsdom hardcodes the `tooShort` validity flag to
+  // false (it can't emulate the "dirty value" tracking real browsers use
+  // for minlength), so a too-short name can't be blocked via fireEvent in
+  // this environment. Covered authoritatively server-side instead — see
+  // backend/src/auth/dto/signup.dto.spec.ts and auth.e2e-spec.ts.
+
+  it('rejects a malformed email without calling the API', () => {
+    const signup = vi.fn();
+    vi.mocked(useAuth).mockReturnValue({ signup } as unknown as ReturnType<typeof useAuth>);
+    render(<SignupPage />, { wrapper: MemoryRouter });
+
+    fillForm({ email: 'not-an-email' });
+
+    expect(signup).not.toHaveBeenCalled();
+  });
+
+  it('rejects an empty required field without calling the API', () => {
+    const signup = vi.fn();
+    vi.mocked(useAuth).mockReturnValue({ signup } as unknown as ReturnType<typeof useAuth>);
+    render(<SignupPage />, { wrapper: MemoryRouter });
+
+    fillForm({ name: '' });
+
+    expect(signup).not.toHaveBeenCalled();
+  });
+
   it('submits valid input and shows the API error on failure', async () => {
     const signup = vi.fn().mockRejectedValue(new Error('Email already in use'));
     vi.mocked(useAuth).mockReturnValue({ signup } as unknown as ReturnType<typeof useAuth>);
