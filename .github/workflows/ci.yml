@@ -40,7 +40,12 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
-      - run: docker compose build
+      - name: Build Docker images
+        env:
+          MONGODB_URI: mongodb://mongo:27017/appdb
+          JWT_ACCESS_SECRET: ci-build-only-access-secret
+          JWT_REFRESH_SECRET: ci-build-only-refresh-secret
+        run: docker compose build
 
       - uses: docker/login-action@v3
         with:
