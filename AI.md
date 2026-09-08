@@ -38,10 +38,6 @@ Env Secerts: AI started to hardcode the JWS secrets in the docker-compose file. 
 
 **State management.** Recommendation was TanStack Query for the user object plus a module variable or Zustand for the token. Sound reasoning for a larger app, but with both tokens in httpOnly cookies there *is* no token for the client to hold, and the only client state left is one user object. Adding a server-state library and a store to manage one object is ceremony. Plain `AuthContext` with `useState`, ~50 lines, no dependencies.
 
-**Race condition on signup.** Not something AI raised. The `findByEmail` pre-check and the insert aren't atomic, so two concurrent signups with the same email can both pass the check. I added the unique index as the real guard and kept the pre-check only for the clean 409, with an explicit `11000` duplicate-key catch as the fallback path. The comment in `auth.service.ts` explains it.
-
-**Lint/test tooling.** Swapped the suggested ESLint + Jest for `oxlint` + `vitest`. Faster, and vitest is already in the frontend workspace, so the repo has one test runner instead of two.
-
 ## What I verified myself
 
 Every AI-generated file was read before it was committed. Beyond that:
