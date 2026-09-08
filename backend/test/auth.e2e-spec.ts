@@ -48,8 +48,22 @@ describe('Auth (e2e)', () => {
     ['too-short name', { name: 'Al', email: 'al@example.com', password: 'Passw0rd!' }],
     ['invalid email', { name: 'Al Gore', email: 'not-an-email', password: 'Passw0rd!' }],
     ['weak password', { name: 'Al Gore', email: 'al2@example.com', password: 'password' }],
+    ['missing name', { email: 'al3@example.com', password: 'Passw0rd!' }],
+    ['missing email', { name: 'Al Gore', password: 'Passw0rd!' }],
+    ['missing password', { name: 'Al Gore', email: 'al4@example.com' }],
   ])('rejects signup with %s (400)', async (_case, payload) => {
     await request(app.getHttpServer()).post('/api/auth/signup').send(payload).expect(400);
+  });
+
+  it('surfaces the DTO validation message in the 400 response body', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/api/auth/signup')
+      .send({ name: 'Al', email: 'al@example.com', password: 'Passw0rd!' })
+      .expect(400);
+
+    expect(res.body.message).toEqual(
+      expect.arrayContaining(['name must be at least 3 characters long']),
+    );
   });
 
   it('rotates the refresh token and rejects reuse of the old one', async () => {
