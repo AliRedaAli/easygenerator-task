@@ -1,0 +1,8 @@
+{
+  "name": "easygenerator-task",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ]
+}
