@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import type { CookieOptions, Request, Response } from 'express';
 import { AuthService } from './auth.service.js';
 import { LoginDto } from './dto/login.dto.js';
@@ -18,6 +19,7 @@ interface RefreshAuthenticatedRequest extends Request {
   user: { userId: string; email: string; name: string; refreshToken: string };
 }
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -25,6 +27,10 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
+  @ApiOperation({ summary: 'Create an account and start a session' })
+  @ApiResponse({ status: 201, description: 'Account created, cookies set' })
+  @ApiResponse({ status: 400, description: 'Validation failed' })
+  @ApiResponse({ status: 409, description: 'Email already in use' })
   @Post('signup')
   async signup(@Body() dto: SignupDto, @Res({ passthrough: true }) res: Response) {
     const user = await this.authService.signup(dto.name, dto.email, dto.password);
@@ -33,6 +39,9 @@ export class AuthController {
     return { name: user.name, email: user.email };
   }
 
+  @ApiOperation({ summary: 'Log in with email and password' })
+  @ApiResponse({ status: 201, description: 'Logged in, cookies set' })
+  @ApiResponse({ status: 401, description: 'Invalid email or password' })
   @Post('login')
   async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
     const user = await this.authService.validateUser(dto.email, dto.password);
@@ -41,6 +50,10 @@ export class AuthController {
     return { name: user.name, email: user.email };
   }
 
+  @ApiCookieAuth('refresh_token')
+  @ApiOperation({ summary: 'Rotate the access/refresh token pair' })
+  @ApiResponse({ status: 201, description: 'Rotated, new cookies set' })
+  @ApiResponse({ status: 401, description: 'Missing, expired, or already-rotated refresh token' })
   @UseGuards(JwtRefreshGuard)
   @Post('refresh')
   async refresh(@Req() req: RefreshAuthenticatedRequest, @Res({ passthrough: true }) res: Response) {
@@ -52,6 +65,10 @@ export class AuthController {
     return { name: req.user.name, email: req.user.email };
   }
 
+  @ApiCookieAuth('access_token')
+  @ApiOperation({ summary: 'End the session and revoke the refresh token' })
+  @ApiResponse({ status: 201, description: 'Logged out, cookies cleared' })
+  @ApiResponse({ status: 401, description: 'Missing or expired access token' })
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(@Req() req: AuthenticatedRequest, @Res({ passthrough: true }) res: Response) {
@@ -61,6 +78,10 @@ export class AuthController {
     return { status: 'ok' };
   }
 
+  @ApiCookieAuth('access_token')
+  @ApiOperation({ summary: 'Get the current logged-in user' })
+  @ApiResponse({ status: 200, description: 'The current user' })
+  @ApiResponse({ status: 401, description: 'Missing or expired access token' })
   @UseGuards(JwtAuthGuard)
   @Get('me')
   me(@Req() req: AuthenticatedRequest) {
