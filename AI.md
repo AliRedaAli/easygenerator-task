@@ -34,6 +34,7 @@ I used Claude as a pair-programmer throughout, in three distinct modes:
 
 **Token storage.** The first suggestion was the standard tutorial answer — access token in `localStorage`. I rejected that outright: it's XSS-readable. The revised plan proposed access token in memory + refresh token in an httpOnly cookie. I went further and put **both** tokens in httpOnly cookies with separate secrets. The in-memory approach means a page refresh always costs a refresh round-trip and the token has to be threaded through a module-scoped variable so the fetch wrapper can read it; two cookies are simpler, and since the app is same-origin behind the proxy, `SameSite=Lax` already blocks cross-site POST, so the CSRF exposure that usually argues against cookie-borne access tokens doesn't apply here.
 
+Env Secerts: AI started to hardcode the JWS secrets in the docker-compose file. I changed that to take it from the .env file .. also to make the setup better I created a command to copy the .env.example and generate the secerts automatically (see the README.md file)
 
 **State management.** Recommendation was TanStack Query for the user object plus a module variable or Zustand for the token. Sound reasoning for a larger app, but with both tokens in httpOnly cookies there *is* no token for the client to hold, and the only client state left is one user object. Adding a server-state library and a store to manage one object is ceremony. Plain `AuthContext` with `useState`, ~50 lines, no dependencies.
 

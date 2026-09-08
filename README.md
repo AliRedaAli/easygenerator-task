@@ -5,8 +5,13 @@ React + Tailwind frontend, NestJS + MongoDB backend, npm workspaces monorepo.
 ## Run with Docker (recommended)
 
 ```
+npm run setup:env
 docker compose up --build
 ```
+
+`npm run setup:env` copies `backend/.env.example` to `.env`, configures the
+Docker MongoDB service URI, and generates random JWT secrets. It will not
+overwrite an existing `.env`.
 
 Then open http://localhost:8080.
 

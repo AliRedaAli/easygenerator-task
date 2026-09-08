@@ -13,10 +13,10 @@ services:
     depends_on:
       - mongo
     environment:
-      MONGODB_URI: mongodb://mongo:27017/appdb
-      JWT_ACCESS_SECRET: change-me-access-secret
+      MONGODB_URI: ${MONGODB_URI:?MONGODB_URI must be set}
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:?JWT_ACCESS_SECRET must be set}
       JWT_ACCESS_EXPIRES_IN: 15m
-      JWT_REFRESH_SECRET: change-me-refresh-secret
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET must be set}
       JWT_REFRESH_EXPIRES_IN: 7d
 
   frontend:
