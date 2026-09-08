@@ -1,6 +1,8 @@
 services:
   mongo:
     image: mongo:7
+    ports:
+      - "27017:27017" # convenience for running the backend locally outside Docker
     volumes:
       - mongo-data:/data/db
 
@@ -12,6 +14,10 @@ services:
       - mongo
     environment:
       MONGODB_URI: mongodb://mongo:27017/appdb
+      JWT_ACCESS_SECRET: change-me-access-secret
+      JWT_ACCESS_EXPIRES_IN: 15m
+      JWT_REFRESH_SECRET: change-me-refresh-secret
+      JWT_REFRESH_EXPIRES_IN: 7d
 
   frontend:
     build:

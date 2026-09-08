@@ -41,10 +41,14 @@ this is a simple project, to implement a module that allows the user to sign-in 
 - Two tokens: short-lived **access token** (15m) + longer-lived **refresh
   token** (7d, random `jti`), each in its own cookie, each with its own
   secret.
-- Refresh token is bcrypt-hashed and stored on the `User` document
-  (`refreshTokenHash`); `POST /auth/refresh` verifies against that hash and
-  **rotates** (issues + stores a new pair). `POST /auth/logout` clears it
-  server-side (`null`), so a copied cookie stops working immediately, not
+- Refresh token is SHA-256-hashed (not bcrypt — bcrypt truncates input at 72
+  bytes, which would hash every refresh token for a user to the same digest
+  since they share a long identical prefix; SHA-256 is also the right tool
+  here since the token is already high-entropy, unlike a password) and
+  stored on the `User` document (`refreshTokenHash`); `POST /auth/refresh`
+  verifies against that hash and **rotates** (issues + stores a new pair).
+  `POST /auth/logout` clears it server-side (`null`), so a copied cookie
+  stops working immediately, not
   just once it expires.
 - Frontend's `apiFetch` wrapper retries once via `/auth/refresh` on a 401,
   so the 15m access-token expiry is invisible to the user.
