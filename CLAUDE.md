@@ -61,6 +61,7 @@ this is a project, to implement a web application that allows the user to sign-i
 - Prefer explicit over magical — clear error messages, typed responses, documented API contracts (Swagger), straightforward route guards. Avoid clever abstractions.
 - Keep the README honest — document trade-offs (e.g., why in-memory access token + httpOnly refresh cookie instead of localStorage), deployment assumptions, what would come next with more time. This is part of the deliverable.
 - Capture decisions in AI.md — not boilerplate, but genuine notes on what worked, what needed reworking, which AI prompts were effective, and what you did differently from the first suggestion.
+- Don't push any code and let the developer to review and push
 
 ## Code Review Checklist
 
